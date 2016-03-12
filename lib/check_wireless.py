@@ -1,6 +1,7 @@
+#!env/bin/python
+
 import os
 import ldap
-import click
 
 # LDAP configuraiton information
 LDAP_URI = 'ldaps://student.unimelb.edu.au/'
@@ -15,32 +16,11 @@ STUDENT_GROUP = 'CN=Students-g,OU=SubjectGroups,DC=student,DC=unimelb,DC=edu,DC=
 UNKNOWN = ['UNKNOWN']
 
 
-@click.command()
-@click.option('--staff-username')
-@click.option('--student-username', required=True)
-def search_ldap(staff_username, student_username):
-    # If a staff username was provided on the command line then
-    # override the environment variable.
-    if not staff_username:
-        staff_username = os.environ.get('LDAP_STAFF_USERNAME')
-
-    # Only allow passwords in environment variables for security reasons
-    staff_password = os.environ.get('LDAP_STAFF_PASSWORD')
-
-    # We need login info to continue. Die if it doesn't exist
-    if not staff_username or not staff_password:
-        print('ERROR: Missing LDAP_STAFF_USERNAME or LDAP_STAFF_PASSWORD environment variable.')
-        return
-
-    # Do the search to find if a student can use uniwireless
-    do_search(staff_username, staff_password, student_username)
-
-
-def student_can_use_uniwireless(groups):
+def student_in_correct_group(groups):
     return STUDENT_GROUP in groups
 
 
-def do_search(staff_username, staff_password, student_username):
+def student_can_access_uniwireless(staff_username, staff_password, student_username):
     ldap_client = connect_to_ldap(staff_username, staff_password)
 
     try:
@@ -58,14 +38,13 @@ def do_search(staff_username, staff_password, student_username):
 
         groups = student_info.get('memberOf', [])
 
-        print ('{} ({}) can {} UniWireless.'.format(
-            username,
-            student_id,
-            'access' if student_can_use_uniwireless(groups) else 'not access'))
+        return (username, student_id, student_in_correct_group(groups))
     except ldap.NO_SUCH_OBJECT as e:
-        print ('No student with username {} exists.'.format(student_username))
+        raise Exception('No student with username {} exists.'.format(student_username))
 
     ldap_client.unbind_s()
+
+    return ('', '', False)
 
 
 def connect_to_ldap(staff_username, staff_password):
@@ -82,8 +61,4 @@ def connect_to_ldap(staff_username, staff_password):
     )
 
     return ldap_client
-
-
-if __name__ == '__main__':
-    search_ldap()
 
