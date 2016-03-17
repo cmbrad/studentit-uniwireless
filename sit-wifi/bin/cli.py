@@ -23,12 +23,15 @@ def search_ldap(staff_username, student_username):
         print('ERROR: Missing LDAP_STAFF_USERNAME or LDAP_STAFF_PASSWORD environment variable.')
         return
 
-    _, student_id, access= student_can_access_uniwireless(staff_username, staff_password, student_username)
+    try:
+        _, student_id, access= student_can_access_uniwireless(staff_username, staff_password, student_username)
 
-    print ('{} ({}) can {} UniWireless.'.format(
-            student_username,
-            student_id,
-            'access' if access else 'not access'))
+        print ('{} ({}) can {} UniWireless.'.format(
+                student_username,
+                student_id,
+                'access' if access else 'not access'))
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
