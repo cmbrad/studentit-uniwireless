@@ -3,13 +3,13 @@
 
 
 ## Setup
-Set the LDAP_STAFF_USERNAME and LDAP_STAFF_PASSWORD environment variables.
+Set the SITWIFI_STAFF_USERNAME and SITWIFI_STAFF_PASSWORD environment variables.
 
 Example (note doing it this way will be temporary and will be lost when you log out):
 
 ```
-export LDAP_STAFF_USERNAME=yourusername
-export LDAP_STAFF_PASSWORD=yourpassword
+export SITWIFI_STAFF_USERNAME=yourusername
+export SITWIFI_STAFF_PASSWORD=yourpassword
 ```
 
 To make it permanent add it to your bashrc file.
