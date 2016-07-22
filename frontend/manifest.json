@@ -1,0 +1,7 @@
+{
+  "name": "sit-wifi",
+  "short_name": "sit-wifi",
+  "description": "UoM student WiFi access information",
+  "start_url": "/",
+  "display": "standalone"
+}

@@ -1,0 +1,84 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../wifi-data/wifi-data.html">
+
+<dom-module id="wifi-app">
+
+  <style is="custom-style" include="iron-flex"></style>
+
+  <template>
+    <wifi-data username="{{studentUsername}}" data="{{data}}"></wifi-data>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+        margin: 0;
+      }
+
+      #username-input {
+        background-color: white;
+        color: #036;
+      }
+
+      #input-wrapper {
+        border-radius: 25px;
+        background-color: white;
+      }
+
+      #input-area {
+        background-color: #036;
+        color: white;
+        padding: 20px 100px;
+        @apply(--layout-flex-1);
+      }
+
+      #info-area {
+        @apply(--layout-flex-3);
+      }
+
+      #container {
+          height: 100%;
+      }
+    </style>
+
+
+    <div id="container" class="vertical layout">
+      <div id="input-area" class="flex">
+        <div id="input-wrapper">
+          <paper-input id="username-input" label="Student Username" value="{{studentUsername}}"></paper-input>
+        </div>
+      </div>
+      <div id="info-area" class="flex">
+        <paper-card heading="Results">
+          <div class="card-content">Student ID: [[data.id]]</div>
+          <div class="card-content">Username: [[data.username]]</div>
+          <div class="card-content">Access: [[data.access]]</div>
+        </paper-card>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'wifi-app',
+
+      properties: {
+        studentUsername: {
+          type: String,
+          value: "bradleyc1"
+        },
+        data: {
+          type: Object
+        },
+      },
+
+    });
+  </script>
+</dom-module>
