@@ -1,7 +1,7 @@
 import os
 from flask import Flask, jsonify
 
-from lib.check_wireless import student_can_access_uniwireless
+from lib.check_wireless import student_can_access_uniwireless, StudentNotExistException
 from lib.cross_origin import crossdomain
 
 
@@ -25,6 +25,10 @@ def check_wireless(student_username):
         if not staff_username or not staff_password:
             raise Exception('Server misconfiguration. LDAP credentials not set.')
         _, student_id, access, groups = student_can_access_uniwireless(staff_username, staff_password, student_username)
+    except StudentNotExistException as e:
+        resp = jsonify({"error": e.message, "username": e.username})
+        #resp.status_code = 404
+        return resp
     except Exception as e:
         return jsonify({
             'error': e.message

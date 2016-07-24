@@ -40,7 +40,7 @@ def student_can_access_uniwireless(staff_username, staff_password, student_usern
 
         return (username, student_id, student_in_correct_group(groups), groups)
     except ldap.NO_SUCH_OBJECT as e:
-        raise Exception('No student with username {} exists.'.format(student_username))
+        raise StudentNotExistException('No student with username {} exists'.format(student_username), username=student_username)
 
     ldap_client.unbind_s()
 
@@ -61,4 +61,11 @@ def connect_to_ldap(staff_username, staff_password):
     )
 
     return ldap_client
+
+
+class StudentNotExistException(Exception):
+    def __init__(self, message, username):
+        super(StudentNotExistException, self).__init__(message)
+
+        self.username = username
 
