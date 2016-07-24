@@ -1,7 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-search-input/paper-search-input.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
@@ -12,12 +14,14 @@
   <style is="custom-style" include="iron-flex"></style>
 
   <template>
-    <wifi-data username="{{studentUsername}}" data="{{data}}"></wifi-data>
+    <wifi-data username="[[studentUsername]]" data="{{data}}" loading="{{loading}}"></wifi-data>
+
     <style>
       :host {
         display: block;
         height: 100%;
         margin: 0;
+        font-family: 'Roboto','Noto',sans-serif;
       }
 
       #username-input {
@@ -25,40 +29,116 @@
         color: #036;
       }
 
-      #input-wrapper {
-        border-radius: 25px;
-        background-color: white;
-      }
-
       #input-area {
         background-color: #036;
         color: white;
-        padding: 20px 100px;
-        @apply(--layout-flex-1);
+        padding: 24px 24px;
+        /*@apply(--layout-flex-4);*/
+      }
+      
+      #input-area paper-search-input {
+        --search-background-color: #004a80;
+        --search-text-color: #036;
+        --icon-scale-factor: 200;
+      }
+
+      #info-bar {
+        height: 64px;
+        background-color: #004576;
+        display: none;
       }
 
       #info-area {
-        @apply(--layout-flex-3);
+        @apply(--layout-flex-10);
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
+        @apply(--layout-center);
+
+        background-color: #ececec;
       }
 
       #container {
           height: 100%;
+      }
+
+      #welcome-area {
+        box-sizing: border-box;
+        padding: 24px 24px;
+      }
+
+      #results {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+
+        width: 100%;
+        height: 100%;
+
+        overflow-y: scroll;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        padding-top: 24px;
+      }
+
+      .result-card {
+        width: 720px;
+        margin-bottom: 24px;
+      }
+
+      .enabled-text {
+        color: green;
+        font-weight: bold;
+      }
+
+      .disabled-text {
+        color: red;
+        font-weight: bold;
+      }
+
+      paper-spinner {
+        width: 100px;
+        height: 100px;
       }
     </style>
 
 
     <div id="container" class="vertical layout">
       <div id="input-area" class="flex">
-        <div id="input-wrapper">
-          <paper-input id="username-input" label="Student Username" value="{{studentUsername}}"></paper-input>
-        </div>
+        <paper-search-input id="username-input" label="Student Username" value="{{studentUsername}}"></paper-search-input>
       </div>
+
+      <div id="info-bar">
+      </div>
+
       <div id="info-area" class="flex">
-        <paper-card heading="Results">
-          <div class="card-content">Student ID: [[data.id]]</div>
-          <div class="card-content">Username: [[data.username]]</div>
-          <div class="card-content">Access: [[data.access]]</div>
-        </paper-card>
+        <div id="loading-indicator" hidden$="[[!showSpinner(loading, studentUsername)]]">
+          <paper-spinner active></paper-spinner>
+        </div>
+
+        <div id="welcome-area" hidden$="[[!showWelcome(studentUsername)]]">
+          <p>
+            Students who are not enrolled in at least one subject will not have access to UniWireless.
+            Use this tool to check if they are a part of the 'Students-u' group, and therefore if they have been granted access.
+          </p>
+        </div>
+
+        <div hidden$="[[!showError(data, loading, studentUsername)]]">
+            <h1>Server error - Could not retrieve results</h1>
+        </div>
+
+        <div hidden$="[[!showStudentNotFound(data, loading, studentUsername)]]">
+            <h1>Student does not exist</h1>
+        </div>
+
+        <div id="results" hidden$="[[!showResult(data, loading, studentUsername)]]">
+          <paper-card class="result-card" heading="Access Information">
+            <div class="card-content">[[data.username]] ([[data.id]]) access to UniWireless is <span class$="[[statusClass(data.access)]]">[[statusText(data.access)]]</span></div>
+          </paper-card>
+          <paper-card class="result-card" heading="Groups">
+            <template is="dom-repeat" items="{{data.groups}}">
+              <div class="card-content">[[item]]</div>
+            </template>
+          </paper-card>
+        </div>
       </div>
     </div>
 
@@ -72,13 +152,48 @@
       properties: {
         studentUsername: {
           type: String,
-          value: "bradleyc1"
+          value: "",
+          observer: '_usernameChanged'
         },
         data: {
-          type: Object
+          type: Object,
+          value: null,
+          observer: '_dataChanged'
         },
+        loading: {
+          type: Boolean,
+          value: false
+        }
       },
-
+      _usernameChanged: function(username) {
+        if(username.length > 0) {
+          this.loading = true;
+        }
+      },
+      _dataChanged: function(data) {
+        console.log(data);
+      },
+      showResult: function(data, loading, studentUsername) {
+        return data != null && !('error' in data) && !loading && studentUsername.length > 0;
+      },
+      showStudentNotFound: function(data, loading, studentUsername) {
+        return data != null && 'error' in data && 'username' in data && !loading && studentUsername.length > 0;
+      },
+      showError: function(data, loading, studentUsername) {
+        return data == null && !loading && studentUsername.length > 0;
+      },
+      showSpinner: function(loading, studentUsername) {
+        return loading && studentUsername.length > 0;
+      },
+      showWelcome: function(studentUsername) {
+        return studentUsername.length == 0;
+      },
+      statusClass: function(access) {
+        return access ? 'enabled-text' : 'disabled-text';
+      },
+      statusText: function(access) {
+        return access ? 'ENABLED' : 'DISABLED';
+      }
     });
   </script>
 </dom-module>

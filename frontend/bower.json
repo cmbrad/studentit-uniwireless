@@ -8,7 +8,11 @@
     "paper-input": "PolymerElements/paper-input#^1.1.15",
     "paper-card": "PolymerElements/paper-card#^1.1.1",
     "paper-button": "PolymerElements/paper-button#^1.0.12",
-    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1"
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1",
+    "paper-search-input": "^1.0.0",
+    "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.9",
+    "iron-icons": "PolymerElements/iron-icons#^1.1.3"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

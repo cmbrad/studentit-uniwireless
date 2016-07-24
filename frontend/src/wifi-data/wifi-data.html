@@ -8,6 +8,7 @@
       url="http://sit-wifi-api.cy.id.au/[[username]]"
       handle-as="json"
       last-response="{{data}}"
+      loading="{{loading}}"
       debounce-duration="300"></iron-ajax>
   </template>
 
@@ -21,6 +22,10 @@
           type: Object,
           notify: true
         },
+        loading: {
+          type: Boolean,
+          notify: true
+        }
       }
     });
   </script>
