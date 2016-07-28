@@ -1,14 +1,16 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 
 <dom-module id="wifi-data">
   <template>
     <iron-ajax
       auto
-      url="http://sit-wifi-api.cy.id.au/[[username]]"
+      url="http://sit-wifi-api.cy.id.au/check/[[username]]"
       handle-as="json"
       last-response="{{data}}"
       loading="{{loading}}"
+      headers="{{_getHeaders(accessToken)}}"
       debounce-duration="300"></iron-ajax>
   </template>
 
@@ -25,7 +27,15 @@
         loading: {
           type: Boolean,
           notify: true
+        },
+        accessToken: {
+          type: String
         }
+      },
+      _getHeaders: function(accessToken) {
+        headers = {"Authorization": "Basic " + btoa(accessToken + ':')}
+        console.log(headers);
+        return headers;
       }
     });
   </script>

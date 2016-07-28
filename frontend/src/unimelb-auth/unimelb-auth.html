@@ -1,0 +1,75 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+
+<dom-module id="unimelb-auth">
+  <template>
+    <iron-localstorage
+      name="accessToken"
+      value="{{accessToken}}"
+      on-iron-localstorage-load-empty="initTokenStore">
+    </iron-localstorage>
+
+    <iron-ajax
+      auto
+      url="http://sit-wifi-api.cy.id.au/auth"
+      body='{"username": "[[username]]", "password": "[[password]]"}'
+      handle-as="json"
+      method="POST"
+      content-type="application/json"
+      last-response="{{data}}"
+      last-error="{{error}}"
+      loading="{{loading}}"></iron-ajax>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'unimelb-auth',
+
+      properties: {
+        username: {
+          type: String
+        },
+        password: {
+          type: String
+        },
+        accessToken: {
+          type: String,
+          notify: true
+        },
+        data: {
+          type: Object,
+          observer: "_dataChanged"
+        },
+        error: {
+          type: Object,
+          observer: "_errorChanged"
+        },
+        authenticated: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        loading: {
+          type: Boolean,
+          notify: true
+        }
+      },
+      _dataChanged: function(data) {
+        console.log('got data!');
+        console.log(data);
+        this.accessToken = data.access_token;
+        console.log('saved');
+        console.log(this.$.accessToken);
+      },
+      _errorChanged: function(err) {
+        console.log('got error!');
+        console.log(err);
+      },
+      initTokenStore: function() {
+        this.accessToken = "";
+      }
+    });
+  </script>
+</dom-module>
