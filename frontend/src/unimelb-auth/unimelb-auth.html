@@ -11,7 +11,7 @@
     </iron-localstorage>
 
     <iron-ajax
-      auto
+      id="ajax"
       url="http://sit-wifi-api.cy.id.au/auth"
       body='{"username": "[[username]]", "password": "[[password]]"}'
       handle-as="json"
@@ -29,10 +29,12 @@
 
       properties: {
         username: {
-          type: String
+          type: String,
+          observer: '_usernameChanged'
         },
         password: {
-          type: String
+          type: String,
+          observer: '_passwordChanged'
         },
         accessToken: {
           type: String,
@@ -53,7 +55,17 @@
         },
         loading: {
           type: Boolean,
-          notify: true
+          notify: false
+        }
+      },
+      _usernameChanged: function(username) {
+        if(username && username.length > 0) {
+          this.$.ajax.generateRequest();
+        }
+      },
+      _authChanged: function(password) {
+        if(this.username && this.username.length > 0) {
+          this.$.ajax.generateRequest();
         }
       },
       _dataChanged: function(data) {
@@ -68,6 +80,7 @@
         console.log(err);
       },
       initTokenStore: function() {
+        console.log('Init token store');
         this.accessToken = "";
       }
     });
