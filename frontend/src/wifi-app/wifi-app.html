@@ -19,10 +19,10 @@
     <unimelb-auth
       username="[[staffUsername]]"
       password="[[staffPassword]]"
-      authenticated="{{authenticated}}"
       access-token="{{accessToken}}"
+      error="{{authError}}"
       loading="{{authLoading}}"></unimelb-auth>
-    <wifi-data username="[[studentUsername]]" data="{{data}}" loading="{{loading}}" access-token="[[accessToken]]"></wifi-data>
+    <wifi-data username="[[studentUsername]]" data="{{data}}" loading="{{loading}}" access-token="{{accessToken}}"></wifi-data>
 
     <style>
       :host {
@@ -120,17 +120,30 @@
         @apply(--layout-center);
         @apply(--layout-center-justified);
       }
+
+      #auth-error-text {
+        color: white;
+        width: 100%;
+        background-color: #F44336;
+        padding: 5px 5px;
+        box-sizing: border-box;
+        border-radius: 3px;
+      }
+
+      .big-form {
+        height: 290px !important;
+      }
     </style>
 
-    <paper-dialog id="modal" class="vertical layout" modal>
+    <paper-dialog id="modal" class$="vertical layout {{getFormClass(authError)}}" modal>
       <div id="login-loading" class="horizontal layout" hidden$="[[!authLoading]]">
         <paper-spinner active></paper-spinner>
       </div>
       <div id="login-form" class="flex" hidden$="[[authLoading]]">
         <h2>Login</h2>
+        <h3 id="auth-error-text" hidden$="[[!authError]]">[[authError]]</h3>
         <paper-input label="Staff username" value="{{inputUsername}}"></paper-input>
         <paper-input label="Staff password" type="password" value="{{inputPassword}}"></paper-input>
-        <h3>[[loginError]]</h3>
 
         <paper-button on-tap="doLogin" raised>Login</paper-button>
       </div>
@@ -193,12 +206,14 @@
         },
         data: {
           type: Object,
-          value: null,
-          observer: '_dataChanged'
+          value: null
         },
         authLoading: {
           type: Boolean,
           value: false
+        },
+        authError: {
+          type: String
         },
         loading: {
           type: Boolean,
@@ -209,9 +224,6 @@
         },
         staffPassword: {
           type: String
-        },
-        authenticated: {
-          type: Boolean
         },
         accessToken: {
           type: String,
@@ -225,7 +237,6 @@
         }
       },
       _accessTokenChanged: function(access_token) {
-        console.log('access token: ' + access_token);
         if (access_token == null || access_token.length == 0)
           this.$$("#modal").open();
         else 
@@ -237,18 +248,11 @@
 
         this.staffUsername = this.inputUsername;
         this.staffPassword = this.inputPassword;
-
-        
-        console.log(a);
-        console.log(b);
       },
       _usernameChanged: function(username) {
         if(username.length > 0) {
           this.loading = true;
         }
-      },
-      _dataChanged: function(data) {
-        console.log(data);
       },
       showResult: function(data, loading, studentUsername) {
         return data != null && !('error' in data) && !loading && studentUsername.length > 0;
@@ -270,6 +274,13 @@
       },
       statusText: function(access) {
         return access ? 'ENABLED' : 'DISABLED';
+      },
+      getFormClass: function(authError) {
+        console.log('hello');
+        console.log(authError);
+        var class = authError.length > 0 ? 'big-form' : '';
+        console.log(class);
+        return class;
       }
     });
   </script>

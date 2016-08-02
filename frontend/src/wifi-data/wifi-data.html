@@ -22,19 +22,26 @@
       properties: {
         data: {
           type: Object,
-          notify: true
+          notify: true,
+          observer: '_dataChanged'
         },
         loading: {
           type: Boolean,
           notify: true
         },
         accessToken: {
-          type: String
+          type: String,
+          notify: true
+        }
+      },
+      _dataChanged: function(data) {
+        if(data && 'error' in data && data.error === 'Invalid token') {
+          console.log('Invalid token. Clearing.');
+          this.accessToken = "";
         }
       },
       _getHeaders: function(accessToken) {
         headers = {"Authorization": "Basic " + btoa(accessToken + ':')}
-        console.log(headers);
         return headers;
       }
     });

@@ -18,7 +18,6 @@
       method="POST"
       content-type="application/json"
       last-response="{{data}}"
-      last-error="{{error}}"
       loading="{{loading}}"></iron-ajax>
   </template>
 
@@ -30,11 +29,11 @@
       properties: {
         username: {
           type: String,
-          observer: '_usernameChanged'
+          observer: '_authChanged'
         },
         password: {
           type: String,
-          observer: '_passwordChanged'
+          observer: '_authChanged'
         },
         accessToken: {
           type: String,
@@ -44,10 +43,6 @@
           type: Object,
           observer: "_dataChanged"
         },
-        error: {
-          type: Object,
-          observer: "_errorChanged"
-        },
         authenticated: {
           type: Boolean,
           notify: true,
@@ -56,31 +51,30 @@
         loading: {
           type: Boolean,
           notify: false
+        },
+        error: {
+          type: String,
+          notify: true,
+          value: ""
         }
       },
-      _usernameChanged: function(username) {
-        if(username && username.length > 0) {
-          this.$.ajax.generateRequest();
-        }
-      },
-      _authChanged: function(password) {
+      _authChanged: function() {
         if(this.username && this.username.length > 0) {
+          console.log('Requesting auth token');
+          this.error = "";
           this.$.ajax.generateRequest();
         }
       },
       _dataChanged: function(data) {
-        console.log('got data!');
-        console.log(data);
-        this.accessToken = data.access_token;
-        console.log('saved');
-        console.log(this.$.accessToken);
-      },
-      _errorChanged: function(err) {
-        console.log('got error!');
-        console.log(err);
+        if(data && 'access_token' in data) {
+          console.log('Got acccess token');
+          this.accessToken = data.access_token;
+        } else {
+          console.log('Failed to get auth token. Error: ' + data.error.desc);
+          this.error = data.error.desc;
+        }
       },
       initTokenStore: function() {
-        console.log('Init token store');
         this.accessToken = "";
       }
     });
