@@ -45,8 +45,8 @@ def home():
 def auth():
     try:
         data = request.get_json()
-        if len(data['username']) == 0:
-            raise Exception('Username cannot be blank')
+        if len(data['username']) == 0 or len(data['password']) == 0:
+            raise Exception('Username or password cannot be blank')
         connect_to_ldap(data['username'], data['password'])
     except Exception as e:
         return jsonify({
